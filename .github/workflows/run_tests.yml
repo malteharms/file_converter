@@ -1,0 +1,22 @@
+name: Run Cargo Application
+
+on:
+  push:  # Runs the action on any branch push
+  pull_request:  # Runs the action on any pull request
+
+jobs:
+  run-cargo:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable  # Use the stable Rust toolchain
+          override: true
+
+      - name: Run Cargo Tests
+        run: cargo test
