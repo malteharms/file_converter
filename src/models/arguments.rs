@@ -1,50 +1,6 @@
 use std::path::PathBuf;
-
-
-#[derive(Debug, PartialEq)]
-enum ArgumentErrorType {
-    MissingParameterKey,
-    UnknownParameterKey,
-    MissingInputValue,
-    MissingOutputValue,
-    MissingArguments,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct ArgumentError {
-    error_type: ArgumentErrorType,
-    value: String
-}
-
-
-impl ArgumentError {
-    fn new(error_type: ArgumentErrorType, value: String) -> ArgumentError {
-        ArgumentError {
-            error_type,
-            value
-        }
-    }
-
-    pub fn display(&self) -> String {
-        match self.error_type {
-            ArgumentErrorType::MissingParameterKey => {
-                format!("Parameter is missing a key: {}", self.value)
-            }
-            ArgumentErrorType::UnknownParameterKey => {
-                format!("Unknown parameter key: {}", self.value)
-            }
-            ArgumentErrorType::MissingInputValue => {
-                "Missing input value".to_string()
-            }
-            ArgumentErrorType::MissingOutputValue => {
-                "Missing output value".to_string()
-            }
-            ArgumentErrorType::MissingArguments => {
-                "Missing arguments".to_string()
-            }
-        }
-    }
-}
+use super::argument_error::ArgumentError;
+use crate::errors::ArgumentErrorType;
 
 enum State {
     ExpectingKey,
@@ -54,9 +10,9 @@ enum State {
 
 #[derive(Debug, PartialEq)]
 pub struct Arguments {
-    input: PathBuf,
-    output: PathBuf,
-    force: bool
+    pub input: PathBuf,
+    pub output: PathBuf,
+    pub force: bool
 }
 
 impl Arguments {
