@@ -23,12 +23,17 @@ impl TextFileConverter {
         AVAILABLE_OUTPUT_FORMATS.contains(&output_format)
     }
 
-    pub fn convert(&self) -> Result<DispatcherResult, DispatcherError> {
+    fn perform_conversion(&self) {
 
+    }
+
+    pub fn convert(&self) -> Result<DispatcherResult, DispatcherError> {
         let output_extension: &str = self.output_file.extension().unwrap().to_str().unwrap();
         if !self.supports_output_format(output_extension) {
             return Err(DispatcherError::OutputFileTypeNotSupported);
         }
+
+        self.perform_conversion();
 
         let result: DispatcherResult = DispatcherResult::new();
         Ok(result)
