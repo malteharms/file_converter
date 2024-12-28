@@ -14,3 +14,11 @@ pub enum DispatcherError {
     InputFileTypeNotSupported,
     OutputFileTypeNotSupported,
 }
+
+#[derive(Debug, PartialEq)]
+pub enum SettingsErrorType {
+    SettingsFileNotFound,
+    InvalidSettingsFile(String),
+    SectionNotFound,
+    KeyNotFound
+}

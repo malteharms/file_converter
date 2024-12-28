@@ -5,16 +5,17 @@ mod errors;
 
 use std::io::Write;
 use std::{env, process};
-use log::{error, info, warn};
+use log::{debug, error, info, warn, LevelFilter};
 
 use models::argument_error::ArgumentError;
 use models::arguments::Arguments;
-use crate::errors::DispatcherError;
+use crate::errors::{DispatcherError, SettingsErrorType};
 use crate::models::results::DispatcherResult;
+use crate::models::settings::Settings;
 
-fn initialize_logging() {
-    env_logger::Builder::from_env(env_logger::Env::default()
-        .default_filter_or("debug"))
+fn initialize_logging(level: LevelFilter) {
+    env_logger::builder()
+        .filter_level(level)
         .format(|buf, record| {
             writeln!(
                 buf,
@@ -27,20 +28,20 @@ fn initialize_logging() {
         .init();
 }
 
-pub fn check_requirements(args: &Arguments) -> bool {
+pub fn check_requirements(args: &Arguments, settings: &Settings) -> bool {
     let mut check_passed: bool = true;
-    info!("Checking requirements...");
+    debug!("Checking requirements...");
 
     // In any case, input_file must exist!
     if !args.input.is_file() {
-        error!("Input file does not exist: {}", args.input.display());
+        error!("Error: Input file does not exist: {}", args.input.display());
         check_passed = false;
     }
 
     // The output_file can exist. But in this case, force needs to be
     // set to overwrite the file.
     if args.output.is_file() {
-        if args.force {
+        if args.force || settings.general.default_overwrite {
             warn!("Output file already exists. It will be overwritten!");
         } else {
             error!("Output file {} already exists. Use --force to overwrite it", args.output.display());
@@ -58,8 +59,15 @@ pub fn check_requirements(args: &Arguments) -> bool {
 }
 
 fn main() {
-    initialize_logging();
     info!("=== FILE CONVERTER CLI TOOL ===");
+
+    let settings = Settings::load()
+        .unwrap_or_else(|error: SettingsErrorType| {
+            error!("Error while loading settings: {:?}", error);
+            process::exit(1);
+        });
+
+    initialize_logging(settings.general.log_level);
 
     let args: Vec<String> = env::args().collect();
     let arguments: Arguments = Arguments::from_args(args)
@@ -68,7 +76,8 @@ fn main() {
             process::exit(1);
         });
 
-    if !check_requirements(&arguments) {
+
+    if !check_requirements(&arguments, &settings) {
         error!("Environment requirements not met. Exiting...");
         process::exit(1);
     }

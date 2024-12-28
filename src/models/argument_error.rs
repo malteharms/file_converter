@@ -2,7 +2,7 @@ use crate::errors::ArgumentErrorType;
 
 #[derive(Debug, PartialEq)]
 pub struct ArgumentError {
-    pub(crate) error_type: ArgumentErrorType,
+    pub error_type: ArgumentErrorType,
     value: String
 }
 
